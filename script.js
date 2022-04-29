@@ -8,31 +8,58 @@ canvas.height = 576;
 c.fillRect(0, 0, canvas.width, canvas.height);
 
 class Sprite {
-    constructor({ position, velcoity, width, height }) {
+    constructor({ position, velcoity, width, height, color = 'red', offset }) {
         this.position = position;
         this.velcoity = velcoity;
         this.height = height;
         this.width = width;
+        this.attackBox = {
+            position: {
+                x: this.position.x,
+                y: this.position.y
+            },
+            width: 100,
+            height: 50,
+            offset
+        }
+        this.color = color;
+        this.isAttacking;
         this.lastKey;
     }
 
     draw() {
-        c.fillStyle = 'red';
+        // draw players
+        c.fillStyle = this.color;
         c.fillRect(this.position.x, this.position.y, this.width, this.height);
+
+        // draw attack box
+        if (this.isAttacking) {
+            c.fillStyle = 'blue';
+            c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
+        }
     }
 
     update() {
         this.draw();
+
         this.position.x += this.velcoity.x;
         this.position.y += this.velcoity.y;
 
+        this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
+        this.attackBox.position.y = this.position.y + this.attackBox.offset.y;
 
         if (this.position.y + this.height + this.velcoity.y >= canvas.height) {
             this.velcoity.y = 0;
         } else {
             this.velcoity.y += gravity;
         }
+    }
 
+    attack() {
+        this.isAttacking = true;
+        setTimeout(() => {
+            this.isAttacking = false;
+        }, 100)
     }
 }
 
@@ -45,6 +72,11 @@ const player = new Sprite({
         y: 50
     },
     velcoity: {
+        x: 0,
+        y: 0
+    },
+    color: 'green',
+    offset: {
         x: 0,
         y: 0
     }
@@ -60,6 +92,10 @@ const enemy = new Sprite({
     },
     velcoity: {
         x: 0,
+        y: 0
+    },
+    offset: {
+        x: -50,
         y: 0
     }
 })
@@ -84,6 +120,13 @@ const keys = {
     ArrowUp: {
         pressed: false
     }
+}
+
+function detectCollicision(current, target) {
+    return (current.attackBox.position.x + current.attackBox.width >= target.position.x &&
+        current.attackBox.position.x <= target.position.x + target.width &&
+        current.attackBox.position.y + current.attackBox.height >= target.position.y &&
+        current.attackBox.position.y <= target.position.y + target.height)
 }
 
 function animate() {
@@ -116,6 +159,16 @@ function animate() {
         enemy.velcoity.x = 5;
     }
 
+    // detect collision
+    if (detectCollicision(player, enemy) && player.isAttacking) {
+        player.isAttacking = false;
+        console.log('p1 hit');
+    }
+
+    if (detectCollicision(enemy, player) && enemy.isAttacking) {
+        enemy.isAttacking = false;
+        console.log('p2 hit');
+    }
 
 }
 
@@ -134,6 +187,9 @@ window.addEventListener('keydown', () => {
         case 'w':
             player.velcoity.y = -10;
             break;
+        case ' ':
+            player.attack();
+            break;
         case 'ArrowRight':
             enemy.lastKey = 'ArrowRight';
             keys.ArrowRight.pressed = true;
@@ -144,6 +200,9 @@ window.addEventListener('keydown', () => {
             break;
         case 'ArrowUp':
             enemy.velcoity.y = -10;
+            break;
+        case 'ArrowDown':
+            enemy.attack();
             break;
     }
 })

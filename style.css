@@ -1,0 +1,40 @@
+.game-wrapper {
+    position: relative;
+    width: fit-content;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.game-top-bar {
+    width: 100%;
+    position: absolute;
+    display: flex;
+    align-items: center;
+}
+
+.player-one-health {
+    flex: 4;
+    background-color: yellow;
+    height: 30px;
+
+}
+
+.player-two-health {
+    flex: 4;
+    background-color: orange;
+    height: 30px;
+
+}
+
+.timer {
+    flex: 1;
+    background-color: green;
+    height: 70px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 35px;
+    color: #fff;
+}
